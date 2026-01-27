@@ -1,0 +1,64 @@
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  /* Hình nền trừu tượng động */
+  background: linear-gradient(45deg, #FF9A9E, #FECFEF, #A18CD1, #FBC2EB);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  display: flex;
+  justify-content: center;
+  padding: 50px 20px;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Class tạo hiệu ứng kính */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px); /* Làm mờ hậu cảnh */
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 24px;
+}
+
+.input-glass {
+  width: 100%;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1.1rem;
+  outline: none;
+  margin-bottom: 15px;
+  transition: 0.3s;
+}
+
+.input-glass::placeholder { color: rgba(255,255,255,0.7); }
+.input-glass:focus { background: rgba(255, 255, 255, 0.5); box-shadow: 0 0 15px rgba(255,255,255,0.4); }
+
+.btn-primary {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
