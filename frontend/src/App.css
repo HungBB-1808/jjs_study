@@ -1,210 +1,245 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Noto+Sans+JP:wght@500;900&display=swap');
 
 :root {
-  --primary: #4f46e5;
-  --secondary: #ec4899;
-  --glass-surface: rgba(255, 255, 255, 0.15);
-  /* Kính trong suốt hơn */
+  --primary: #4F46E5;
+  --text-dark: #1e293b;
+  --glass-bg: rgba(255, 255, 255, 0.2);
   --glass-border: rgba(255, 255, 255, 0.4);
-  --text-main: #1e293b;
-  --text-glass: #ffffff;
-  /* Chữ trên nền kính đậm */
+  --shadow-color: rgba(31, 38, 135, 0.15);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  /* Nền động dạng sóng nước */
-  background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
-  background-size: 200% 200%;
-  animation: bgShift 15s ease infinite;
+  /* Nền Gradient động rực rỡ để làm nổi bật tấm kính */
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
   font-family: 'Quicksand', sans-serif;
-  color: var(--text-main);
+  color: var(--text-dark);
   display: flex;
   justify-content: center;
   overflow-x: hidden;
 }
 
-@keyframes bgShift {
-  0% {
-    background-position: 0% 50%
-  }
-
-  50% {
-    background-position: 100% 50%
-  }
-
-  100% {
-    background-position: 0% 50%
-  }
-}
-
 #root {
   width: 100%;
   max-width: 1200px;
-  /* Layout RỘNG HƠN */
+  /* Layout RỘNG */
   padding: 40px 20px;
 }
 
-/* NAVBAR "KÍNH TREO" */
-.navbar {
+/* --- THANH MENU "GIỌT NƯỚC" --- */
+.nav-container {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  padding: 20px 40px;
   background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(20px);
-  /* Mờ mạnh hơn */
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 60px;
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-  margin-bottom: 50px;
+  padding: 8px;
+  border-radius: 99px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 var(--shadow-color);
+  width: fit-content;
+  margin: 0 auto 50px auto;
+  position: relative;
+  z-index: 10;
 }
 
-.nav-link {
-  text-decoration: none;
-  color: #334155;
-  font-weight: 800;
+.nav-item {
+  position: relative;
+  padding: 12px 32px;
+  /* Nút to hơn */
+  border-radius: 99px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
   font-size: 1.1rem;
-  padding: 12px 30px;
-  border-radius: 40px;
-  transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-weight: 700;
+  color: #555;
+  transition: color 0.3s;
   display: flex;
   align-items: center;
-  gap: 10px;
-  position: relative;
-  overflow: hidden;
+  gap: 8px;
+  outline: none;
 }
 
-.nav-link:hover,
-.nav-link.active {
-  background: white;
+.nav-item.selected {
   color: var(--primary);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  transform: translateY(-3px) scale(1.05);
 }
 
-/* KHUNG KÍNH CHUNG (GLASS PANEL) */
+/* Hiệu ứng nền trắng trượt (Giọt nước) */
+.active-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #FFFFFF;
+  border-radius: 99px;
+  z-index: -1;
+  /* Nằm dưới chữ */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* --- KHUNG KÍNH CHUNG (GLASS PANEL) --- */
 .glass-panel {
   background: rgba(255, 255, 255, 0.3);
-  /* Trong suốt hơn để thấy nền */
-  backdrop-filter: blur(25px);
-  /* Hiệu ứng kính mờ cực mạnh */
-  -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  /* Trong suốt */
+  backdrop-filter: blur(40px);
+  /* Mờ mạnh */
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid var(--glass-border);
   border-radius: 30px;
-  padding: 40px;
-  box-shadow:
-    0 4px 6px rgba(0, 0, 0, 0.05),
-    0 10px 15px rgba(0, 0, 0, 0.1),
-    inset 0 0 20px rgba(255, 255, 255, 0.5);
-  /* Ánh sáng nội tại */
-  animation: floatUp 0.6s ease-out;
+  padding: 50px;
+  /* Padding rộng */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  min-height: 500px;
+  position: relative;
 }
 
-@keyframes floatUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* --- 1. ÔN TẬP (THE BIG GLASS CARD) --- */
+/* --- PHẦN ÔN TẬP (THẺ TO ĐẠI) --- */
 .study-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  justify-content: center;
+  height: 100%;
 }
 
-/* Khu vực thẻ TO HƠN, RỘNG HƠN */
-.big-card-area {
+.card-area {
   width: 100%;
-  max-width: 700px;
-  /* Thẻ rất to */
-  height: 400px;
+  max-width: 800px;
+  /* RỘNG HƠN */
+  height: 450px;
+  /* CAO HƠN */
   perspective: 2000px;
-  /* Phối cảnh sâu hơn */
   cursor: pointer;
+  margin: 20px 0;
 }
 
-.big-card-inner {
+.card-inner {
   position: relative;
   width: 100%;
   height: 100%;
   transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  /* Hiệu ứng nảy vật lý */
+  /* Nảy lò xo */
   transform-style: preserve-3d;
 }
 
-.big-card-inner.flipped {
+.card-inner.flipped {
   transform: rotateY(180deg);
 }
 
-/* Mặt kính của thẻ */
 .card-face {
   position: absolute;
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  /* Ẩn mặt sau */
   border-radius: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
-  /* Hiệu ứng kính ngọc trai */
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(30px);
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), inset 0 0 0 2px rgba(255, 255, 255, 0.5);
-  overflow: hidden;
-  /* Để chứa hiệu ứng lóe sáng */
-}
-
-/* Hiệu ứng LÓE SÁNG (SHINE) đặc biệt khi lật */
-.card-face::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
-  transform: skewX(-25deg);
-  transition: 0.5s;
-}
-
-.big-card-area:hover .card-face::after {
-  left: 150%;
-  transition: 1s;
-}
-
-.card-face.front {
-  color: #1e293b;
+  /* HIỆU ỨNG KÍNH 2 CHIỀU */
+  background: rgba(255, 255, 255, 0.4);
+  /* Trong suốt */
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), inset 0 0 30px rgba(255, 255, 255, 0.5);
 }
 
 .card-face.back {
   transform: rotateY(180deg);
-  background: rgba(255, 255, 255, 0.8);
-  /* Mặt sau đục hơn xíu */
-  color: var(--primary);
+  background: rgba(255, 255, 255, 0.6);
+  /* Mặt sau đục hơn xíu để đọc nghĩa */
 }
 
-/* NÚT ĐIỀU HƯỚNG */
-.controls-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* --- TEXT STYLE (CHỮ TO) --- */
+.jp-font {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 900;
+}
+
+.jp-large {
+  font-size: 5rem;
+  margin: 0;
+  color: #1e293b;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+}
+
+.vi-large {
+  font-size: 3rem;
+  margin: 0;
+  color: #333;
+}
+
+/* INPUT & BUTTONS */
+.input-glass {
   width: 100%;
-  max-width: 600px;
+  padding: 20px;
+  border: none;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+.input-glass:focus {
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+  outline: none;
+}
+
+.btn {
+  padding: 16px 32px;
+  border-radius: 16px;
+  border: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+}
+
+.btn-primary:active {
+  transform: scale(0.95);
+}
+
+/* --- GRID & CÁC THÀNH PHẦN KHÁC --- */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.mini-card {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 25px;
+  border-radius: 20px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: 0.2s;
+}
+
+.mini-card:hover {
+  background: #fff;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .nav-btn {
@@ -212,109 +247,18 @@ body {
   height: 70px;
   border-radius: 50%;
   border: none;
-  font-size: 1.8rem;
   cursor: pointer;
-  background: white;
+  background: #fff;
   color: var(--primary);
+  font-size: 1.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  transition: 0.3s;
+  transition: 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .nav-btn:hover {
-  transform: scale(1.15);
-  box-shadow: 0 15px 35px rgba(79, 70, 229, 0.3);
-  color: var(--secondary);
-}
-
-.nav-btn:active {
-  transform: scale(0.9);
-}
-
-/* --- CÁC PHẦN KHÁC (INPUT, GRID, QUIZ) --- */
-.input-glass {
-  width: 100%;
-  padding: 20px;
-  /* Input to hơn */
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.8);
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #000;
-  margin-bottom: 20px;
-  transition: 0.3s;
-}
-
-.input-glass:focus {
-  background: white;
-  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.5);
-}
-
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 25px;
-  /* Grid rộng hơn */
-  max-height: 70vh;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-.mini-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  padding: 25px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  transition: 0.3s;
-  cursor: pointer;
-  border: 1px solid white;
-}
-
-.mini-card:hover {
-  transform: translateY(-5px) scale(1.03);
-  background: white;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
-
-/* Text Styles */
-.jp-font {
-  font-family: 'Noto Sans JP', sans-serif;
-  font-weight: 900;
-}
-
-.btn {
-  padding: 16px 32px;
-  border-radius: 16px;
-  font-weight: 800;
-  font-size: 1.1rem;
-  border: none;
-  cursor: pointer;
-  transition: 0.3s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
-}
-
-.timer-box {
-  font-size: 4rem;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  color: white;
-  margin-bottom: 20px;
+  transform: scale(1.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }

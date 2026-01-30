@@ -2,7 +2,12 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as wanakana from 'wanakana';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { FaPlus, FaLayerGroup, FaGraduationCap, FaClock, FaCheck, FaArrowRight, FaArrowLeft, FaRedo, FaRandom, FaKeyboard } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FaPlus, FaLayerGroup, FaGraduationCap, FaClock, 
+  FaCheck, FaArrowRight, FaArrowLeft, FaRedo, 
+  FaRandom, FaKeyboard 
+} from 'react-icons/fa';
 import './App.css';
 
 const API_URL = "http://localhost:8080/api/cards";
@@ -10,27 +15,77 @@ const API_URL = "http://localhost:8080/api/cards";
 function App() {
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<AddPage />} />
-        <Route path="/library" element={<LibraryPage />} />
-        <Route path="/study" element={<StudyPage />} />
-        <Route path="/test" element={<TestPage />} />
-      </Routes>
+      <div className="app-container">
+        <Navbar />
+        {/* AnimatePresence giúp tạo hiệu ứng khi chuyển trang */}
+        <AnimatePresence mode="wait">
+          <RoutesWrapper />
+        </AnimatePresence>
+      </div>
     </Router>
   );
 }
 
+// Wrapper để lấy location cho AnimatePresence
+function RoutesWrapper() {
+  const location = useLocation();
+  return (
+    <Routes location={location} key={location.pathname}>
+      <Route path="/" element={<PageWrapper><AddPage /></PageWrapper>} />
+      <Route path="/library" element={<PageWrapper><LibraryPage /></PageWrapper>} />
+      <Route path="/study" element={<PageWrapper><StudyPage /></PageWrapper>} />
+      <Route path="/test" element={<PageWrapper><TestPage /></PageWrapper>} />
+    </Routes>
+  );
+}
+
+// Component bọc hiệu ứng chuyển động cho từng trang
+const PageWrapper = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20, scale: 0.98 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    exit={{ opacity: 0, y: -20, scale: 0.98 }}
+    transition={{ duration: 0.4, ease: "easeOut" }}
+    className="glass-panel"
+  >
+    {children}
+  </motion.div>
+);
+
+// --- NAVBAR "GIỌT NƯỚC" (LIQUID) ---
 function Navbar() {
   const location = useLocation();
-  const isActive = (path) => location.pathname === path ? 'active' : '';
+  const tabs = [
+    { path: '/', label: 'Thêm thẻ', icon: <FaPlus /> },
+    { path: '/library', label: 'Kho thẻ', icon: <FaLayerGroup /> },
+    { path: '/study', label: 'Ôn tập', icon: <FaGraduationCap /> },
+    { path: '/test', label: 'Kiểm tra', icon: <FaClock /> },
+  ];
+
   return (
-    <nav className="navbar">
-      <Link to="/" className={`nav-link ${isActive('/')}`}><FaPlus /> Thêm thẻ</Link>
-      <Link to="/library" className={`nav-link ${isActive('/library')}`}><FaLayerGroup /> Kho thẻ</Link>
-      <Link to="/study" className={`nav-link ${isActive('/study')}`}><FaGraduationCap /> Ôn tập</Link>
-      <Link to="/test" className={`nav-link ${isActive('/test')}`}><FaClock /> Kiểm tra</Link>
-    </nav>
+    <div className="nav-container">
+      {tabs.map((tab) => {
+        const isActive = location.pathname === tab.path;
+        return (
+          <Link key={tab.path} to={tab.path} style={{ textDecoration: 'none', position: 'relative' }}>
+            <button className={`nav-item ${isActive ? 'selected' : ''}`}>
+              {/* Viên thuốc trắng trượt qua lại */}
+              {isActive && (
+                <motion.div
+                  layoutId="active-pill"
+                  className="active-pill"
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                />
+              )}
+              {/* Nội dung nút */}
+              <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+                {tab.icon} {tab.label}
+              </span>
+            </button>
+          </Link>
+        );
+      })}
+    </div>
   );
 }
 
@@ -39,80 +94,40 @@ function AddPage() {
   const [jp, setJp] = useState('');
   const [meaning, setMeaning] = useState('');
   const [status, setStatus] = useState(null);
-  const [isAutoMode, setIsAutoMode] = useState(true); // <--- Thêm trạng thái này
+  const [isAutoMode, setIsAutoMode] = useState(true);
 
-  // Hàm xử lý nhập liệu thông minh
   const handleInputJp = (e) => {
     const val = e.target.value;
-    if (isAutoMode) {
-      // Nếu bật Auto: Chuyển Romaji -> Hiragana
-      setJp(wanakana.toKana(val));
-    } else {
-      // Nếu tắt Auto: Nhập thô (để dùng IME gõ Kanji hoặc paste)
-      setJp(val);
-    }
+    isAutoMode ? setJp(wanakana.toKana(val)) : setJp(val);
   };
 
   const addCard = async () => {
     if (!jp || !meaning) return;
     try {
-      await axios.post(API_URL, { japanese: jp, meaning: meaning, example: "Từ vựng cá nhân" });
-      setStatus('✅ Lưu thành công!'); setJp(''); setMeaning('');
+      await axios.post(API_URL, { japanese: jp, meaning: meaning, example: "Từ vựng" });
+      setStatus('Đã lưu thành công!'); setJp(''); setMeaning('');
       setTimeout(() => setStatus(null), 2000);
-    } catch { setStatus('❌ Lỗi kết nối!'); }
+    } catch { setStatus('Lỗi kết nối!'); }
   };
 
   return (
-    <div className="glass-panel" style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
-      <h2>✨ Thêm từ vựng mới</h2>
-
-      {/* Nút chuyển chế độ nhập */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20, gap: 10 }}>
-        <button
-          className="btn"
-          style={{
-            background: isAutoMode ? 'var(--primary)' : '#e5e7eb',
-            color: isAutoMode ? 'white' : '#333',
-            fontSize: '0.9rem', padding: '8px 15px'
-          }}
-          onClick={() => setIsAutoMode(true)}
-        >
-          🅰️ Auto Hiragana
+    <div style={{textAlign: 'center', maxWidth: '600px', margin: '0 auto'}}>
+      <h2 style={{fontSize: '2.5rem', marginBottom: '30px'}}>Thêm từ vựng mới</h2>
+      
+      <div style={{display: 'flex', justifyContent: 'center', marginBottom: 30, gap: 15}}>
+        <button className="btn" style={{background: isAutoMode ? 'var(--primary)' : 'rgba(255,255,255,0.5)', color: isAutoMode ? '#fff' : '#000'}} onClick={() => setIsAutoMode(true)}>
+          Auto Hiragana
         </button>
-        <button
-          className="btn"
-          style={{
-            background: !isAutoMode ? 'var(--primary)' : '#e5e7eb',
-            color: !isAutoMode ? 'white' : '#333',
-            fontSize: '0.9rem', padding: '8px 15px'
-          }}
-          onClick={() => setIsAutoMode(false)}
-        >
-          <FaKeyboard /> Nhập Kanji/Thô
+        <button className="btn" style={{background: !isAutoMode ? 'var(--primary)' : 'rgba(255,255,255,0.5)', color: !isAutoMode ? '#fff' : '#000'}} onClick={() => setIsAutoMode(false)}>
+          <FaKeyboard /> Kanji
         </button>
       </div>
 
-      <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: 15, fontStyle: 'italic' }}>
-        {isAutoMode
-          ? "Đang bật: Gõ 'neko' sẽ thành 'ねこ'"
-          : "Đang tắt: Hãy dùng bàn phím tiếng Nhật của máy để gõ Kanji"}
-      </p>
-
-      <input
-        className="input-glass jp-font"
-        value={jp}
-        onChange={handleInputJp}
-        placeholder={isAutoMode ? "Nhập Romaji (vd: arigatou)" : "Nhập Kanji hoặc Paste vào đây"}
-      />
-      <input
-        className="input-glass"
-        value={meaning}
-        onChange={e => setMeaning(e.target.value)}
-        placeholder="Nghĩa tiếng Việt (VD: Cảm ơn)"
-      />
-
-      <button className="btn btn-primary" style={{ width: '100%' }} onClick={addCard}>Lưu ngay</button>
-      {status && <p style={{ marginTop: 15, fontWeight: 'bold', color: status.includes('Lỗi') ? 'red' : 'green' }}>{status}</p>}
+      <input className="input-glass jp-font" value={jp} onChange={handleInputJp} placeholder={isAutoMode ? "romaji (vd: neko)" : "Nhập Kanji..."} />
+      <input className="input-glass" value={meaning} onChange={e => setMeaning(e.target.value)} placeholder="Nghĩa tiếng Việt" />
+      
+      <button className="btn btn-primary" style={{width: '100%', justifyContent: 'center'}} onClick={addCard}>Lưu vào kho</button>
+      {status && <p style={{marginTop: 20, fontSize: '1.2rem', fontWeight: 'bold', color: '#059669'}}>{status}</p>}
     </div>
   );
 }
@@ -123,13 +138,13 @@ function LibraryPage() {
   useEffect(() => { axios.get(API_URL).then(res => setCards(res.data.reverse())); }, []);
 
   return (
-    <div className="glass-panel">
-      <h2 style={{ textAlign: 'center' }}>🗂️ Kho từ vựng ({cards.length})</h2>
+    <div>
+      <h2 style={{textAlign: 'center', fontSize: '2.5rem', marginBottom: '30px'}}>Kho từ vựng ({cards.length})</h2>
       <div className="grid-container">
         {cards.map(c => (
           <div key={c.id} className="mini-card">
-            <h3 className="jp-font" style={{ color: 'var(--primary)', margin: '0 0 5px 0', fontSize: '1.5rem' }}>{c.japanese}</h3>
-            <p style={{ margin: 0, color: '#333' }}>{c.meaning}</p>
+            <h3 className="jp-font" style={{margin: '0 0 10px 0', fontSize: '2rem', color: 'var(--primary)'}}>{c.japanese}</h3>
+            <p style={{margin: 0, fontSize: '1.2rem', color: '#4b5563'}}>{c.meaning}</p>
           </div>
         ))}
       </div>
@@ -137,7 +152,7 @@ function LibraryPage() {
   );
 }
 
-// --- 3. ÔN TẬP (Có nút Trộn) ---
+// --- 3. ÔN TẬP (THẺ KÍNH 2 CHIỀU) ---
 function StudyPage() {
   const [cards, setCards] = useState([]);
   const [index, setIndex] = useState(0);
@@ -147,91 +162,66 @@ function StudyPage() {
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('learned_cards')) || [];
     setLearnedIds(saved);
-    axios.get(API_URL).then(res => {
-      setCards(res.data.filter(c => !saved.includes(c.id)));
-    });
+    axios.get(API_URL).then(res => setCards(res.data.filter(c => !saved.includes(c.id))));
   }, []);
 
   const shuffleCards = () => {
     const shuffled = [...cards].sort(() => Math.random() - 0.5);
-    setCards(shuffled);
-    setIndex(0); setFlipped(false);
+    setCards(shuffled); setIndex(0); setFlipped(false);
   };
 
-  const nextCard = () => { setFlipped(false); setTimeout(() => setIndex((prev) => (prev + 1) % cards.length), 300); };
-  const prevCard = () => { setFlipped(false); setTimeout(() => setIndex((prev) => (prev - 1 + cards.length) % cards.length), 300); };
+  const nextCard = () => { setFlipped(false); setTimeout(() => setIndex((prev) => (prev + 1) % cards.length), 400); };
+  const prevCard = () => { setFlipped(false); setTimeout(() => setIndex((prev) => (prev - 1 + cards.length) % cards.length), 400); };
 
   const markLearned = () => {
     const card = cards[index];
     const newLearned = [...learnedIds, card.id];
     setLearnedIds(newLearned);
     localStorage.setItem('learned_cards', JSON.stringify(newLearned));
-    
     const remaining = cards.filter(c => c.id !== card.id);
-    setCards(remaining);
-    setIndex(0); setFlipped(false);
+    setCards(remaining); setIndex(0); setFlipped(false);
   };
 
-  const resetProgress = () => {
-    localStorage.removeItem('learned_cards');
-    window.location.reload();
-  };
+  const resetProgress = () => { localStorage.removeItem('learned_cards'); window.location.reload(); };
 
   if (cards.length === 0) return (
-    <div className="glass-panel" style={{textAlign: 'center', padding: '60px'}}>
-      <h2 style={{fontSize: '3rem', margin: '20px'}}>🎉 Xuất sắc!</h2>
-      <p style={{fontSize: '1.2rem'}}>Bạn đã "xử lý" hết sạch từ vựng.</p>
-      <button className="btn btn-primary" onClick={resetProgress} style={{marginTop: '30px'}}><FaRedo/> Reset học lại</button>
+    <div style={{textAlign: 'center', padding: '60px'}}>
+      <h2 style={{fontSize: '3rem'}}>🎉 Xuất sắc!</h2>
+      <p style={{fontSize: '1.5rem'}}>Bạn đã thuộc hết từ vựng.</p>
+      <button className="btn btn-primary" onClick={resetProgress} style={{marginTop: 30}}><FaRedo/> Học lại</button>
     </div>
   );
 
   const current = cards[index];
 
   return (
-    <div className="glass-panel study-container">
-      {/* Header Thẻ */}
-      <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '700px', alignItems: 'center'}}>
-        <div style={{background: 'rgba(255,255,255,0.5)', padding: '5px 15px', borderRadius: '20px', fontWeight: 'bold'}}>
-          #{index + 1} / {cards.length}
-        </div>
-        
+    <div className="study-container">
+      <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '800px', alignItems: 'center'}}>
+        <span style={{fontSize: '1.2rem', fontWeight: 'bold', color: '#555'}}>Thẻ {index + 1} / {cards.length}</span>
         <div style={{display: 'flex', gap: 15}}>
-          <button onClick={shuffleCards} className="btn" style={{background: 'white', color: '#333', padding: '10px 20px'}}>
-            <FaRandom /> Trộn
-          </button>
-          <button onClick={markLearned} className="btn" style={{background: '#dcfce7', color: '#15803d', padding: '10px 20px'}}>
-            <FaCheck /> Thuộc rồi
-          </button>
+          <button onClick={shuffleCards} className="btn" style={{background: 'rgba(255,255,255,0.6)'}}><FaRandom /> Trộn</button>
+          <button onClick={markLearned} className="btn" style={{background: '#10B981', color: 'white'}}><FaCheck /> Đã thuộc</button>
         </div>
       </div>
 
-      {/* THẺ KÍNH TO KHỔNG LỒ */}
-      <div className="big-card-area" onClick={() => setFlipped(!flipped)}>
-        <div className={`big-card-inner ${flipped ? 'flipped' : ''}`}>
-          
-          {/* Mặt trước */}
+      <div className="card-area" onClick={() => setFlipped(!flipped)}>
+        <div className={`card-inner ${flipped ? 'flipped' : ''}`}>
+          {/* MẶT TRƯỚC (Kính trong) */}
           <div className="card-face front">
-            <h1 className="jp-font" style={{fontSize: '5rem', margin: 0, textShadow: '0 5px 15px rgba(0,0,0,0.1)'}}>
-              {current.japanese}
-            </h1>
-            <p style={{marginTop: 20, fontSize: '1.1rem', opacity: 0.7, fontStyle: 'italic'}}>
-              (Chạm để lật tấm kính)
-            </p>
+            <h1 className="jp-font jp-large">{current.japanese}</h1>
+            <p style={{marginTop: 30, opacity: 0.6, fontSize: '1.2rem'}}>(Chạm để lật)</p>
           </div>
-          
-          {/* Mặt sau */}
+          {/* MẶT SAU (Kính mờ đục hơn) */}
           <div className="card-face back">
-            <h2 style={{fontSize: '3rem', marginBottom: 10}}>{current.meaning}</h2>
-            <div style={{background: 'rgba(236, 72, 153, 0.1)', padding: '10px 20px', borderRadius: '10px', color: '#db2777'}}>
-              {current.example || "Chưa có ví dụ"}
+            <h2 className="jp-font vi-large">{current.meaning}</h2>
+            <div style={{marginTop: 20, background: 'rgba(255,255,255,0.5)', padding: '15px 30px', borderRadius: '15px', fontSize: '1.2rem'}}>
+              {current.example || "..."}
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* Điều hướng */}
-      <div className="controls-bar">
+      <div style={{display: 'flex', gap: 40, marginTop: 20}}>
         <button className="nav-btn" onClick={prevCard}><FaArrowLeft /></button>
         <button className="nav-btn" onClick={nextCard}><FaArrowRight /></button>
       </div>
@@ -257,61 +247,57 @@ function TestPage() {
 
   const startTest = async () => {
     const res = await axios.get(API_URL);
-    if (res.data.length < 4) return alert("Cần ít nhất 4 từ để kiểm tra!");
-
+    if (res.data.length < 4) return alert("Cần ít nhất 4 từ!");
     const quizData = res.data.sort(() => 0.5 - Math.random()).slice(0, 10).map(card => {
-      const distractors = res.data.filter(c => c.id !== card.id).sort(() => 0.5 - Math.random()).slice(0, 3).map(c => c.meaning);
-      return { q: card.japanese, a: card.meaning, opts: [...distractors, card.meaning].sort(() => 0.5 - Math.random()) };
+       const distractors = res.data.filter(c => c.id !== card.id).sort(() => 0.5 - Math.random()).slice(0, 3).map(c => c.meaning);
+       return { q: card.japanese, a: card.meaning, opts: [...distractors, card.meaning].sort(() => 0.5 - Math.random()) };
     });
-
-    setQuestions(quizData);
-    setTimeLeft(duration * 60);
-    setScore(0); setCurrentQ(0);
-    setStep('testing');
+    setQuestions(quizData); setTimeLeft(duration * 60); setScore(0); setCurrentQ(0); setStep('testing');
   };
 
   const handleAnswer = (opt) => {
     if (opt === questions[currentQ].a) setScore(s => s + 1);
-    if (currentQ + 1 < questions.length) setCurrentQ(c => c + 1);
-    else setStep('result');
+    if (currentQ + 1 < questions.length) setCurrentQ(c => c + 1); else setStep('result');
   };
 
   const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   if (step === 'setup') return (
-    <div className="glass-panel" style={{ textAlign: 'center' }}>
-      <h2>⏱️ Kiểm tra tốc độ</h2>
-      <div style={{ margin: '30px 0' }}>
-        <label>Thời gian (phút): </label>
-        <input type="number" className="input-glass" style={{ width: '80px', textAlign: 'center', display: 'inline-block' }}
-          value={duration} onChange={e => setDuration(e.target.value)} min="1" max="60" />
+    <div style={{textAlign: 'center'}}>
+      <h2 style={{fontSize: '2.5rem'}}>Kiểm tra tốc độ</h2>
+      <div style={{margin: '40px 0'}}>
+        <label style={{fontSize: '1.2rem'}}>Thời gian (phút): </label>
+        <input type="number" className="input-glass" style={{width: '100px', textAlign: 'center', display: 'inline-block', margin: '0 10px'}} 
+          value={duration} onChange={e => setDuration(e.target.value)} min="1" />
       </div>
-      <button className="btn btn-primary" onClick={startTest}>Bắt đầu tính giờ</button>
+      <button className="btn btn-primary" style={{padding: '20px 40px', fontSize: '1.2rem'}} onClick={startTest}>Bắt đầu tính giờ</button>
     </div>
   );
 
   if (step === 'result') return (
-    <div className="glass-panel" style={{ textAlign: 'center' }}>
+    <div style={{textAlign: 'center'}}>
       <h1>KẾT QUẢ</h1>
-      <h2 style={{ fontSize: '4rem', margin: '20px 0', color: 'var(--primary)' }}>{score} / {questions.length}</h2>
-      <button className="btn btn-primary" onClick={() => setStep('setup')}>Làm bài khác</button>
+      <h2 style={{fontSize: '6rem', margin: '20px 0', color: 'var(--primary)'}}>{score} / {questions.length}</h2>
+      <button className="btn btn-primary" onClick={() => setStep('setup')}>Làm lại</button>
     </div>
   );
 
   return (
-    <div className="glass-panel">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span className="timer-box">{formatTime(timeLeft)}</span>
-        <span style={{ fontWeight: 'bold' }}>Câu {currentQ + 1} / {questions.length}</span>
+    <div>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40}}>
+        <span style={{fontSize: '3rem', fontWeight: 'bold', color: 'var(--primary)'}}>{formatTime(timeLeft)}</span>
+        <span style={{fontSize: '1.5rem'}}>Câu {currentQ + 1} / {questions.length}</span>
       </div>
-
-      <div style={{ textAlign: 'center', margin: '40px 0' }}>
-        <h1 className="jp-font" style={{ fontSize: '3.5rem' }}>{questions[currentQ].q}</h1>
+      <div style={{textAlign: 'center', margin: '50px 0'}}>
+        <h1 className="jp-font jp-large">{questions[currentQ].q}</h1>
       </div>
-
-      <div className="quiz-grid">
+      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px'}}>
         {questions[currentQ].opts.map((opt, i) => (
-          <div key={i} className="quiz-opt" onClick={() => handleAnswer(opt)}>{opt}</div>
+          <motion.div whileHover={{scale: 1.02}} whileTap={{scale: 0.98}} key={i} 
+            style={{padding: '30px', background: 'rgba(255,255,255,0.6)', borderRadius: '20px', fontSize: '1.3rem', fontWeight: 'bold', textAlign: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.5)'}}
+            onClick={() => handleAnswer(opt)}>
+            {opt}
+          </motion.div>
         ))}
       </div>
     </div>
