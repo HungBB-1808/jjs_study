@@ -152,23 +152,21 @@ function StudyPage() {
     });
   }, []);
 
-  // Hàm trộn thẻ
   const shuffleCards = () => {
     const shuffled = [...cards].sort(() => Math.random() - 0.5);
     setCards(shuffled);
-    setIndex(0);
-    setFlipped(false);
+    setIndex(0); setFlipped(false);
   };
 
-  const nextCard = () => { setFlipped(false); setIndex((prev) => (prev + 1) % cards.length); };
-  const prevCard = () => { setFlipped(false); setIndex((prev) => (prev - 1 + cards.length) % cards.length); };
+  const nextCard = () => { setFlipped(false); setTimeout(() => setIndex((prev) => (prev + 1) % cards.length), 300); };
+  const prevCard = () => { setFlipped(false); setTimeout(() => setIndex((prev) => (prev - 1 + cards.length) % cards.length), 300); };
 
   const markLearned = () => {
     const card = cards[index];
     const newLearned = [...learnedIds, card.id];
     setLearnedIds(newLearned);
     localStorage.setItem('learned_cards', JSON.stringify(newLearned));
-
+    
     const remaining = cards.filter(c => c.id !== card.id);
     setCards(remaining);
     setIndex(0); setFlipped(false);
@@ -180,10 +178,10 @@ function StudyPage() {
   };
 
   if (cards.length === 0) return (
-    <div className="glass-panel" style={{ textAlign: 'center' }}>
-      <h2>🎉 Tuyệt vời!</h2>
-      <p>Bạn đã thuộc hết từ vựng.</p>
-      <button className="btn btn-outline" onClick={resetProgress}><FaRedo /> Học lại từ đầu</button>
+    <div className="glass-panel" style={{textAlign: 'center', padding: '60px'}}>
+      <h2 style={{fontSize: '3rem', margin: '20px'}}>🎉 Xuất sắc!</h2>
+      <p style={{fontSize: '1.2rem'}}>Bạn đã "xử lý" hết sạch từ vựng.</p>
+      <button className="btn btn-primary" onClick={resetProgress} style={{marginTop: '30px'}}><FaRedo/> Reset học lại</button>
     </div>
   );
 
@@ -191,38 +189,50 @@ function StudyPage() {
 
   return (
     <div className="glass-panel study-container">
-      {/* Thanh công cụ trên cùng */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-        <span style={{ fontWeight: 'bold', color: '#555' }}>Thẻ {index + 1} / {cards.length}</span>
-
-        <div style={{ display: 'flex', gap: 10 }}>
-          {/* Nút trộn thẻ mới */}
-          <button onClick={shuffleCards} className="btn btn-outline" style={{ padding: '8px 15px', fontSize: '0.9rem' }}>
-            <FaRandom /> Trộn thẻ
+      {/* Header Thẻ */}
+      <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '700px', alignItems: 'center'}}>
+        <div style={{background: 'rgba(255,255,255,0.5)', padding: '5px 15px', borderRadius: '20px', fontWeight: 'bold'}}>
+          #{index + 1} / {cards.length}
+        </div>
+        
+        <div style={{display: 'flex', gap: 15}}>
+          <button onClick={shuffleCards} className="btn" style={{background: 'white', color: '#333', padding: '10px 20px'}}>
+            <FaRandom /> Trộn
           </button>
-          <button onClick={markLearned} style={{ background: 'none', border: 'none', color: '#22c55e', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <FaCheck /> Đã thuộc
+          <button onClick={markLearned} className="btn" style={{background: '#dcfce7', color: '#15803d', padding: '10px 20px'}}>
+            <FaCheck /> Thuộc rồi
           </button>
         </div>
       </div>
 
-      {/* Thẻ học */}
+      {/* THẺ KÍNH TO KHỔNG LỒ */}
       <div className="big-card-area" onClick={() => setFlipped(!flipped)}>
         <div className={`big-card-inner ${flipped ? 'flipped' : ''}`}>
+          
+          {/* Mặt trước */}
           <div className="card-face front">
-            <h1 className="jp-font" style={{ fontSize: '4rem', color: '#333', margin: 0 }}>{current.japanese}</h1>
-            <p style={{ color: '#999', marginTop: 10 }}>Chạm để xem nghĩa</p>
+            <h1 className="jp-font" style={{fontSize: '5rem', margin: 0, textShadow: '0 5px 15px rgba(0,0,0,0.1)'}}>
+              {current.japanese}
+            </h1>
+            <p style={{marginTop: 20, fontSize: '1.1rem', opacity: 0.7, fontStyle: 'italic'}}>
+              (Chạm để lật tấm kính)
+            </p>
           </div>
+          
+          {/* Mặt sau */}
           <div className="card-face back">
-            <h2 style={{ fontSize: '2.5rem', color: '#333' }}>{current.meaning}</h2>
+            <h2 style={{fontSize: '3rem', marginBottom: 10}}>{current.meaning}</h2>
+            <div style={{background: 'rgba(236, 72, 153, 0.1)', padding: '10px 20px', borderRadius: '10px', color: '#db2777'}}>
+              {current.example || "Chưa có ví dụ"}
+            </div>
           </div>
+
         </div>
       </div>
 
-      {/* Mũi tên điều hướng - Đã làm to và rõ */}
+      {/* Điều hướng */}
       <div className="controls-bar">
         <button className="nav-btn" onClick={prevCard}><FaArrowLeft /></button>
-        <span style={{ color: '#888', fontStyle: 'italic' }}>Chạm thẻ để lật</span>
         <button className="nav-btn" onClick={nextCard}><FaArrowRight /></button>
       </div>
     </div>
