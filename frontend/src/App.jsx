@@ -187,7 +187,7 @@ function StudyPage() {
 
   if (cards.length === 0) return (
     <div style={{ textAlign: 'center', padding: '60px' }}>
-      <h2 style={{ fontSize: '3rem' }}>🎉 Xuất sắc!</h2>
+      <h2 style={{ fontSize: '3rem' }}>Xuất sắc!</h2>
       <p style={{ fontSize: '1.5rem' }}>Bạn đã thuộc hết từ vựng.</p>
       <button className="btn btn-primary" onClick={resetProgress} style={{ marginTop: 30 }}><FaRedo /> Học lại</button>
     </div>
