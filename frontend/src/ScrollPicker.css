@@ -1,0 +1,99 @@
+.picker-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 120px;
+}
+
+.picker-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.picker-container {
+    position: relative;
+    height: 300px;
+    /* Hiển thị khoảng 5 số */
+    width: 100%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.picker-scroll-area {
+    height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    /* BẮT BUỘC: Giúp cuộn dừng đúng số */
+    scrollbar-width: none;
+    /* Ẩn thanh cuộn Firefox */
+}
+
+.picker-scroll-area::-webkit-scrollbar {
+    display: none;
+    /* Ẩn thanh cuộn Chrome */
+}
+
+.picker-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.3);
+    scroll-snap-align: center;
+    /* Quan trọng: căn giữa khi dừng */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.picker-item.active {
+    color: #fff;
+    font-size: 2.2rem;
+    /* Số chọn sẽ to hơn */
+    font-weight: 800;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+/* Thanh sáng ở giữa (Highlight) */
+.picker-highlight {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 60px;
+    /* Bằng itemHeight */
+    transform: translateY(-50%);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.05);
+    z-index: 1;
+}
+
+/* Gradient mờ 2 đầu */
+.picker-gradient-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, #050505 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.picker-gradient-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to top, #050505 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 2;
+}
